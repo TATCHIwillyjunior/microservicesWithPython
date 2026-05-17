@@ -43,7 +43,7 @@ frontend/dist
 frontend/dist-ssr
 frontend/*.local
 
-
+modules/module-01/explain.md
 
 modules/module-02/*
 modules/module-03/*

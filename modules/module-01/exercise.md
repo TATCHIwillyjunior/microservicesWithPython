@@ -26,11 +26,13 @@ A bounded context is a part of the system that has a clear responsibility and ow
 
 For each bounded context you identify, fill in the table:
 
-| Bounded Context | Responsibilities                                         | Owned Entities | Team        |
-| --------------- | -------------------------------------------------------- | -------------- | ----------- |
-| Identity        | Manages who users are, handles registration and profiles | User, Session  | Platform    |
-| Game Library    | _(fill in)_                                              | _(fill in)_    | _(fill in)_ |
-| _(add more)_    |                                                          |                |             |
+| Bounded Context  | Responsibilities                                                                                                | Owned Entities                | Team        |
+| ---------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------- | ----------- |
+| Identity         | Manages who users are, handles registration and profiles                                                        | User, Session                 | Platform    |
+| Game Library     | Manages game titles, genres and play styles                                                                     | Game                          | Library     |
+| Track Activities | Track what other users are playing, and share your playing activities                                           | Activity event                | Activity    |
+| Logging          | Since Activities are track, logs(records) should be kept for furture advertisement or promotion following GDPR  | User Consent, data controller | Controller  |
+| Notifications    | Suggest games to users base on played data, and player interest(in actually playing) not enter and go           | Notification template         | Messaging   |
 
 There is no single correct answer: what matters is that you can justify each row.
 
@@ -51,7 +53,56 @@ Example:
 activity-service → logging-service
 Trigger: an activity is logged
 Protocol: RabbitMQ message (async — why not REST here?)
-Payload: { activity_id, user_id, action, game_id, timestamp }
+Payload: 
+{
+  "activity_id": "uuid",
+  "user_id": "uuid",
+  "game_id": "uuid",
+  "action": "PLAYED | LIKED | SHARED",
+  "timestamp": "ISO8601"
+}
+
+```
+
+```
+user-service → activity-service
+Trigger: A new user registers
+Protocol: REST (sync) --> (activity-service must immediately know the user exists to attach future activities)
+Payload:
+{
+  "user_id": "uuid",
+  "username": "string",
+  "created_at": "ISO8601"
+}
+
+```
+
+```
+user-service  → game-service,
+Trigger: A user ask for games details,
+Protocol: REST (sync) --> (The gateway must fetch game metadata in real time)
+Payload:
+{
+  "user_id": "uuid",
+  "game_id": "uuid",
+  "title": "string",
+  "genre": "string",
+  "platform": "string"
+}
+
+```
+
+```
+logging-service → notification-service,
+Trigger: A user revokes GDPR consent,
+Protocol: Async event, --> ( Consent changes must propagate without blocking logging-service)
+Payload:
+{
+  "user_id": "uuid",
+  "consent": false,
+  "timestamp": "ISO8601"
+}
+
 ```
 
 Focus on the flows that feel non-obvious. You do not need to document every possible pair.
@@ -68,6 +119,40 @@ Draw the full GameHub service map:
 - One box at the top labelled **gateway** — all client requests enter here, no client ever calls a service directly
 
 This can be a sketch on paper, a whiteboard photo, or ASCII art committed to your branch.
+
+                           ┌──────────────────────┐
+                           │      CLIENTS         │
+                           │  (Web / Mobile App)  │
+                           └──────────┬───────────┘
+                                      │
+                                      ▼
+                           ┌──────────────────────┐
+                           │       GATEWAY        │
+                           │  (API entry point)   │
+                           └──────────┬───────────┘
+                                      │  REST
+        ┌─────────────────────────────┼──────────────────────────────┐
+        │                             │                              │
+        ▼                             ▼                              ▼
+┌────────────────── ─┐       ┌───────────────────┐          ┌───────────────────┐
+│   USER-SERVICE     │       │   GAME-SERVICE    │          │   AUTH-SERVICE    │
+│  (users, profiles) │       │ (game catalog)    │          │ (tokens, auth)    │
+└─────────┬──────────┘       └─────────┬─────────┘          └─────────┬─────────┘
+          │ REST                       │ REST                         │ REST
+          │                            │                              │
+          ▼                            ▼                              ▼
+┌────────── ─────────┐         ┌───────────────────┐             ┌───────────────────┐
+│ ACTIVITY-SERVICE   │──────▶     LOGGING-SERVICE  │ ◀───────── │ NOTIFICATION-SVC  │
+│ (tracks gameplay)  │  ASYNC  │ (GDPR logs)       │   ASYNC     │ (emails, events)  │
+└─────────┬──────────┘         └───────────────────┘             └───────────────────┘
+          │
+          │ ASYNC
+          ▼
+┌────────────────────┐
+│ NOTIFICATION-SVC   │
+│ (emails, messages) │
+└────────────────────┘
+
 
 ---
 

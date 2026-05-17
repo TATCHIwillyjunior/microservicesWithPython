@@ -22,7 +22,7 @@ You started from a painful monolith. Now you're splitting it into separate servi
 
 Think about it from three angles: the developer who has to change code, the team that has to deploy it, and the user who has to live with its failures. You don't need to cover all three, pick the one that felt most real to you today.
 
-> _Your answer:_
+> _Your answer:_ As a developer, splitting the monolith microservice remove the fear of breaking unrelated services or features as we make changes. It gives use a smaller and safer isolated codebase that can easily be understand, improve and deploy. 
 
 ---
 
@@ -34,7 +34,7 @@ Look at your service map. Every arrow between two services is a decision someone
 
 What would break, slow down, or become harder to manage if you merged those two services back together?
 
-> _Your answer:_
+> _Your answer:_ I kept activity-service and logging-service separate because merging them will tie a user‑critical workflow to a non‑critical background process cause the activity service pipline to crash if (there is a bug in logging, a corruption on the log table) on the logging-service.
 
 ---
 
@@ -46,7 +46,7 @@ Microservices solve the monolith's problems. But they create new ones.
 
 No need to solve it: just name it honestly. This is exactly the tension the rest of the course is about.
 
-> _Your answer:_
+> _Your answer:_ In the monolith, debugging was straightforward everything ran in one process. If something broke, you could follow the error from top to bottom in a single place. Now with the microservices innplace, (A single user action can touch four or five services)
 
 ---
 
