@@ -43,7 +43,13 @@ frontend/dist
 frontend/dist-ssr
 frontend/*.local
 
+<<<<<<< HEAD
 modules/module-04/*
+=======
+
+
+
+>>>>>>> 3850d5de454f0679a075403241ef8edff49d8682
 modules/module-05/*
 modules/module-06/*
 modules/module-07/*
