@@ -6,7 +6,7 @@ const PORT = process.env.PORT ?? 8004;
 
 const app = express();
 app.use(express.json());
-app.use(router);
+app.use("/v1", router);
 
 async function main(): Promise<void> {
   await startConsumer();
