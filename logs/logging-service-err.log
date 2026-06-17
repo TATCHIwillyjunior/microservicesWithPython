@@ -1,0 +1,15 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:8006
+Press CTRL+C to quit
+127.0.0.1 - - [18/Jun/2026 00:21:49] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [18/Jun/2026 00:26:49] "GET /v1/consent/d582df00-cdeb-44af-be49-7c3d772e09e9 HTTP/1.1" 404 -
+127.0.0.1 - - [18/Jun/2026 00:26:50] "POST /v1/consent/d582df00-cdeb-44af-be49-7c3d772e09e9 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Jun/2026 00:27:31] "GET /v1/logs/d582df00-cdeb-44af-be49-7c3d772e09e9 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Jun/2026 00:27:32] "DELETE /v1/consent/d582df00-cdeb-44af-be49-7c3d772e09e9 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Jun/2026 00:27:33] "DELETE /v1/logs/d582df00-cdeb-44af-be49-7c3d772e09e9 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Jun/2026 00:27:34] "GET /v1/logs/d582df00-cdeb-44af-be49-7c3d772e09e9 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Jun/2026 00:49:07] "GET /v1/consent/user-123 HTTP/1.1" 404 -
+127.0.0.1 - - [18/Jun/2026 00:49:42] "GET /v1/consent/user-123 HTTP/1.1" 404 -
+127.0.0.1 - - [18/Jun/2026 00:51:14] "GET /v1/consent/user-123 HTTP/1.1" 404 -
+127.0.0.1 - - [18/Jun/2026 00:53:14] "POST /v1/consent/user-123 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Jun/2026 00:59:01] "GET /v1/consent/user-123 HTTP/1.1" 200 -
