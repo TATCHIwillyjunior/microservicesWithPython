@@ -104,9 +104,6 @@ async def create_activity(data: schemas.ActivityCreate, db: Session = Depends(ge
         game_title=game_title,
     )
 
-    #
-
-
     return {
         "id": activity.id,
         "user_id": activity.user_id,

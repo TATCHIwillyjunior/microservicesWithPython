@@ -51,4 +51,5 @@ def has_consent(user_id: str) -> bool:
         if has_consent(payload["user_id"]):
             # store the log
     """
-    raise NotImplementedError
+    consent = Consent.query.get(user_id)
+    return consent is not None and consent.granted

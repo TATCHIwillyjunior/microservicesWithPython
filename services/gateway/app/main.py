@@ -1,17 +1,35 @@
 import httpx
 from fastapi import FastAPI, Request, Response
+from jose import JWTError, jwt
 
 from app.config import settings
 
 app = FastAPI(title="gateway", version="1.0.0")
 
 ROUTES: dict[str, str] = {
-    "users":      settings.user_service_url,
-    "games":      settings.game_service_url,
-    "activities": settings.activity_service_url,
-    # Added in Module 4
-    # "notifications": settings.notification_service_url,
+    "users":         settings.user_service_url,
+    "games":         settings.game_service_url,
+    "activities":    settings.activity_service_url,
+    "notifications": settings.notification_service_url,  # Added in Module 4
+    "auth":          settings.auth_service_url,           # Added in Module 6
+    "consent":       settings.logging_service_url,        # Added in Module 5
+    "logs":          settings.logging_service_url,        # Added in Module 5
 }
+
+# /v1/auth/token is the one route that must stay reachable without a token —
+# you cannot require a token to get a token.
+PUBLIC_PATHS = {"v1/auth/token"}
+
+
+def _has_valid_token(authorization: str | None) -> bool:
+    if not authorization or not authorization.startswith("Bearer "):
+        return False
+    token = authorization.removeprefix("Bearer ").strip()
+    try:
+        jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    except JWTError:
+        return False
+    return True
 
 
 @app.get("/health")
@@ -21,19 +39,18 @@ async def health():
 
 @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy(request: Request, path: str):
-    # Step 1 — parse the resource name from the path
     segments = path.split("/")
     if len(segments) < 2:
         return Response(status_code=404, content="Not found")
 
     resource = segments[1]
-
-    # Step 2 — look up the target service
     target_base = ROUTES.get(resource)
     if target_base is None:
         return Response(status_code=404, content=f"Unknown resource: {resource}")
 
-    # Step 3 — forward the request
+    if path not in PUBLIC_PATHS and not _has_valid_token(request.headers.get("authorization")):
+        return Response(status_code=401, content="Missing or invalid token")
+
     target_url = f"{target_base}/{path}"
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -50,6 +67,5 @@ async def proxy(request: Request, path: str):
             headers=dict(response.headers),
             media_type=response.headers.get("content-type"),
         )
-    # Step 4 — handle unreachable service
     except httpx.RequestError:
         return Response(status_code=503, content="Service unavailable")

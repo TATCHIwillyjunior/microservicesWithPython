@@ -8,17 +8,17 @@ class Settings(BaseSettings):
     activity_service_url: str = "http://localhost:8003"
 
     # Added in Module 4
-    # notification_service_url: str = "http://localhost:8004"
+    notification_service_url: str = "http://localhost:8004"
 
     # Added in Module 5
-    # logging_service_url: str = "http://localhost:8006"
+    logging_service_url: str = "http://localhost:8006"
 
     # Added in Module 6
-    # auth_service_url: str = "http://localhost:8005"
-    # secret_key: str = "dev-secret-change-in-production"
+    auth_service_url: str = "http://localhost:8005"
+    secret_key: str = "dev-secret-change-in-production"
+    algorithm: str = "HS256"
 
-    class Config:
-        env_file = ".env"
+    model_config = {"env_file": ".env"}
 
 
 settings = Settings()
